@@ -4,8 +4,17 @@
   "version": "1.0",
   "description": "AI-powered accessibility checker.",
   "action": {
-    "default_popup": "index.html",
-    "default_icon": "test.png"
+    "default_title": "Click to open SightMate"
   },
-  "permissions": ["activeTab", "scripting"]
+  "side_panel": {
+    "default_path": "index.html"
+  },
+  "permissions": ["sidePanel", "tabs", "scripting", "activeTab"],
+  "host_permissions": ["<all_urls>"], 
+  "web_accessible_resources": [
+    {
+      "resources": ["axe.min.js"],
+      "matches": ["<all_urls>"]
+    }
+  ]
 }

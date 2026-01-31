@@ -31,27 +31,101 @@ function App() {
     }
   }
 
-  async function aiScreenshotAnalysis() {
-    try {
-      const screenshotUrl = await chrome.tabs.captureVisibleTab(null, { format: 'png' });
-      const base64Data = screenshotUrl.split(',')[1];
+async function runAxeAnalysis() {
+  try {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
-      const aiResponse = await ai.models.generateContent({
+    await chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      files: ["axe.min.js"]
+    });
+
+    const results = await chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      func: async () => {
+        return await axe.run();
+      }
+    });
+
+    if (results && results[0]?.result) {
+      const violations = results[0].result.violations;
+      
+      if (violations.length === 0) {
+        setResponse("No automated violations found! Great job.");
+      } else {
+        highlightViolations(violations);
+        const aiResponse = await ai.models.generateContent({
         model: "gemini-3-flash-preview",
-        contents: [`You need to analyze this website from a screenshot.
-          Assess whether this website has low contrast text issues.
-          Your response should look like this: "Score: [score from 0 to 100]. (next line) Areas to improve: (next line) 1. (one thing): (short precise explanation) ..." 
-          Make sure to be precise and straight to the point. Provide a small amount of text.`,
-        { inlineData: { data: base64Data, mimeType: "image/png" } }]
+        contents: `I found these accessibility issues: ${JSON.stringify(violations)}. 
+        You need to provide precise and straight and small suggestions how to fix those issues. Provide a score of accessibility.
+        If possible, provide lines of code where the issue appears, or the snippet of the code. Please, be precise, remember, you are
+        outlining this in a chrome extention.
+        Please remove any headers and unnecessary things. Please, be precise. No tables. Follow this format:
+        Format your response with clear Markdown.
+    
+        Score: [0-100]
+        ---
+        ### Issue 1: [Name]
+        **Current Code:** \`\`\`html
+        [html snippet here]
+         \`\`\`
+         **Suggested Fix:**
+        \`\`\`html
+        [fixed snippet here]
+        \`\`\`
+        ---
+        (Repeat for other issues)
+        No explanations. real fixes.
+        `
       });
 
       setResponse(aiResponse.text);
-    } catch (error) {
-      console.log(error)
-      setResponse("There is some error, try again later.")
+      }
     }
+  } catch (error) {
+    console.error("Analysis failed:", error);
+    setResponse("Make sure you are on a valid webpage and try again.");
   }
+}
 
+async function highlightViolations(violations) {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+
+  chrome.scripting.executeScript({
+    target: { tabId: tab.id },
+    func: (violationsData) => {
+      const old = document.querySelectorAll('.sightmate-highlight');
+      old.forEach(el => el.remove());
+
+      violationsData.forEach(violation => {
+        violation.nodes.forEach(node => {
+          const el = document.querySelector(node.target[0]);
+          if (el) {
+            const rect = el.getBoundingClientRect();
+            const highlight = document.createElement('div');
+            
+            Object.assign(highlight.style, {
+              position: 'absolute',
+              top: `${rect.top + window.scrollY}px`,
+              left: `${rect.left + window.scrollX}px`,
+              width: `${rect.width}px`,
+              height: `${rect.height}px`,
+              border: '3px dashed #ff4757',
+              backgroundColor: 'rgba(255, 71, 87, 0.1)',
+              pointerEvents: 'none',
+              zIndex: '9999',
+              borderRadius: '4px'
+            });
+            
+            highlight.className = 'sightmate-highlight';
+            document.body.appendChild(highlight);
+          }
+        });
+      });
+    },
+    args: [violations]
+  });
+}
 
   return (
     <>
@@ -63,7 +137,7 @@ function App() {
         <button className="go_button"
           onClick={() => {
             setResponse("Let me think...");
-            aiScreenshotAnalysis()
+            runAxeAnalysis()
           }}>
           Analyze the current website
         </button>
