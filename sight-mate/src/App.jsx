@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { GoogleGenAI } from "@google/genai";
 import ReactMarkdown from 'react-markdown';
+import eyeLogo from'./eye.png';
 import './website.css'
 
 function App() {
@@ -56,18 +57,11 @@ function App() {
   return (
     <>
       <h1>S i g h t M a t e</h1>
-      <p>SightMate is an AI bot that helps analyze any website to make them more accessible for users with disabilities.</p>
-      <p>Input the website link or choose to analyse the current website</p>
-
-      <div className="con">
-        <button className="go_button"
-          onClick={() => {
-            setResponse("Let me think...");
-            aiScreenshotAnalysis()
-          }}>
-          Analyze the current website
-        </button>
+      <div className="img-con">
+        <img src={eyeLogo} className="logo"/>
       </div>
+      <p>Use SightMate to fix your website to the finest!</p>
+      
 
       <div className="con">
         <div className="searchBar">
@@ -83,7 +77,15 @@ function App() {
             setResponse("Let me think...");
             aiURLAnalysis()
           }}>
-          Analyse the URL
+          Analyse URL
+        </button>
+
+        <button className="go_button"
+          onClick={() => {
+            setResponse("Let me think...");
+            aiScreenshotAnalysis()
+          }}>
+          Analyze Tab
         </button>
       </div>
 
@@ -91,7 +93,7 @@ function App() {
         <ReactMarkdown>{response}</ReactMarkdown>
       </div>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
