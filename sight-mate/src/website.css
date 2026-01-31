@@ -1,6 +1,15 @@
 body {
     background: linear-gradient(to bottom, black 10%, white 90%);
     background-attachment: fixed;
+    width: 400px;
+    min-height: 500px;
+    margin: 0;
+    padding: 15px;
+    overflow-x: hidden;
+}
+
+#root {
+  width: 100%;
 }
 
 
@@ -28,7 +37,9 @@ html {
     align-items: center;
     justify-content: center;
     margin-top: 100px;
+    color: red;
 }
+
 .searchBar {
     width: 100%;
     max-width: 600px;
@@ -73,4 +84,8 @@ html {
 
 .go_button:hover {
     transform: scale(1.1);
+}
+
+.response {
+    color: red
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { GoogleGenAI } from "@google/genai";
 import ReactMarkdown from 'react-markdown';
 import './website.css'
@@ -7,19 +7,20 @@ function App() {
 
   const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_KEY });
   const [request, setRequest] = useState("");
-  const [response, setResponse] = useState("")
+  const [response, setResponse] = useState("");
+  const script = [`Assess whether this website has low contrast text issues.
+        Your response should look like this: "Score: [score from 0 to 100]. (next line) Areas to improve: (next line) 1. (one thing): (short precise explanation) ..." 
+        Make sure to be precise and straight to the point.`];
 
   const handleChangeRequest = (event) => {
     setRequest(event.target.value);
   }
 
-  async function aiTest() {
-
+  async function aiURLAnalysis() {
     try {
       const aiResponse = await ai.models.generateContent({
         model: "gemini-3-flash-preview",
-        contents: `You need to analyze this website and assess whether this website has low contrast text issues: ${request}.
-        Make sure to be precise and short, without tables. Be straight to the point. `,
+        contents: `You need to analyze this website: ${request}. ${script}`
       });
 
       setResponse(aiResponse.text);
@@ -27,8 +28,26 @@ function App() {
       console.log(error)
       setResponse("There is some error, try again later.")
     }
-
   }
+
+  async function aiScreenshotAnalysis() {
+    try {
+      const screenshotUrl = await chrome.tabs.captureVisibleTab(null, { format: 'png' });
+      const base64Data = screenshotUrl.split(',')[1];
+
+      const aiResponse = await ai.models.generateContent({
+        model: "gemini-3-flash-preview",
+        contents: [`You need to analyze this website from a screenshot. ${script}`,
+        { inlineData: { data: base64Data, mimeType: "image/png" } }]
+      });
+
+      setResponse(aiResponse.text);
+    } catch (error) {
+      console.log(error)
+      setResponse("There is some error, try again later.")
+    }
+  }
+
 
   return (
     <>
@@ -37,23 +56,15 @@ function App() {
       <p>Input the website link</p>
 
       <div className="con">
-        <div className="searchBar">
-          <input
-            type="text"
-            id="request"
-            value={request}
-            onChange={handleChangeRequest}
-          />
-        </div>
         <button className="go_button"
           onClick={() => {
             setResponse("Let me think...");
             aiTest()
           }}>
-          GO
+          Analyze the current website
         </button>
       </div>
-      <div className='con'>
+      <div className='response'>
         <ReactMarkdown>{response}</ReactMarkdown>
       </div>
     </>
