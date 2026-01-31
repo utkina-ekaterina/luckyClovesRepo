@@ -1,0 +1,11 @@
+{
+  "manifest_version": 3,
+  "name": "SightMate",
+  "version": "1.0",
+  "description": "AI-powered accessibility checker.",
+  "action": {
+    "default_popup": "index.html",
+    "default_icon": "test.png"
+  },
+  "permissions": ["activeTab", "scripting"]
+}
