@@ -8,9 +8,9 @@ function App() {
   const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_KEY });
   const [request, setRequest] = useState("");
   const [response, setResponse] = useState("");
-  const script = [`Assess whether this website has low contrast text issues.
+  const script = `Assess whether this website has low contrast text issues.
         Your response should look like this: "Score: [score from 0 to 100]. (next line) Areas to improve: (next line) 1. (one thing): (short precise explanation) ..." 
-        Make sure to be precise and straight to the point.`];
+        Make sure to be precise and straight to the point.`;
 
   const handleChangeRequest = (event) => {
     setRequest(event.target.value);
