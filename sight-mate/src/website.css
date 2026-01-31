@@ -1,28 +1,80 @@
+/* extention width fix */
+
+html, body {
+  width: 450px; 
+  min-height: 500px;
+  margin: 0;
+  padding: 10px;
+  overflow-x: hidden;
+}
+
+
+/*helps put the menu and bot next to each other*/
 body {
-    background: linear-gradient(to bottom, black 10%, white 90%);
-    background-attachment: fixed;
-    width: 400px;
-    min-height: 500px;
     margin: 0;
-    padding: 15px;
-    overflow-x: hidden;
+    display: flex;
+    background: linear-gradient(to bottom, rgba(0,0,0,0) 40%, rgba(255, 255, 255, 0) 100%), url("BlackWhiteBackground.avif");
+    background-attachment: fixed;
+    background-size: cover;
+    background-position: center;
+
 }
 
-#root {
-  width: 100%;
+/*the menu*/
+.leftSide {
+    width: 80px;
+    background-color: transparent;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: width 0.1s ease;
+    min-height: 100vh;
 }
 
+/*to see the menu button, everything else is hidden*/
+.leftSide:hover{
+    width: 200px;
+    background-color: black;
+}
+.leftSide:hover .items{
+    display: flex;
+    opacity: 1;
+}
+
+/*everything on the rightside -> the search bot*/
+.rightSide {
+    flex: 1;
+    align-items: center;
+    display: flex;
+    min-height: 100vh;
+
+}
 
 h1 {
     color: white;
     text-align: center;
-    font-size: 70px;
+    font-size: 125px;
+    margin-top: 60px;
+    animation: fadeTitle 3s ease-out forwards;
+    margin-bottom: 150px;
+}
+
+/*h1 line will fade in*/
+@keyframes fadeTitle {
+    from {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 p {
     text-align: center;
     color: white;
-    font-size: 15px;
+    font-size: 20px;
 }
 
 html {
@@ -36,8 +88,6 @@ html {
     gap: 15px;
     align-items: center;
     justify-content: center;
-    margin-top: 100px;
-    color: red;
 }
 
 .searchBar {
@@ -48,6 +98,7 @@ html {
     align-items: center;
     border-radius: 100px;
     padding: 20px;
+    border: 5px solid white;
 }
 
 .searchBar input {
@@ -76,16 +127,50 @@ html {
     background-color: black;
     color: gray;
     font-weight: bold;
-    border: none;
     border-radius: 50px;
     cursor: pointer;
     font-size: 15px;
+    border: 5px solid white;
 }
 
+/*go button pops out*/
 .go_button:hover {
     transform: scale(1.1);
 }
 
+
+/*helps order the drop down menu items*/
+.items {
+    display: none;
+    flex-direction: column;
+
+    opacity: 0;
+}
+
+/*drop down menu*/
+.drop {
+    background-color: transparent;
+    color: white;
+    padding: 20px;
+    font-size: 15px;
+    border: none;
+    font-weight: bold;
+    width: 200px;
+    text-align: left;
+    cursor: pointer;
+}
+
+/*the items in the menu*/
+.items a {
+    background-color: black;
+    color: white;
+    align-items: center;
+    font-size: 15px;
+    padding: 10px 20px;
+    text-decoration: none;
+}
+
 .response {
-    color: red
+    color: white;
+    padding: 10px 20px;
 }
