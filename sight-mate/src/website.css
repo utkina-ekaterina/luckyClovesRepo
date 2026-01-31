@@ -1,46 +1,66 @@
 /* extention width fix */
 
-html,
-body {
-    width: 450px;
-    min-height: 500px;
-    margin: 0;
-    padding: 10px;
-    overflow-x: hidden;
+
+
+html, body {
+  width: 450px; 
+  min-height: 450px;
+  margin: 0;
+  padding: 0px;
+  overflow-x: hidden;
+  font-family: "verdana", "Courier New", monospace;
 }
 
 
 /*helps put the menu and bot next to each other*/
 body {
     margin: 0;
-    display: flex;
-    background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 40%, rgba(255, 255, 255, 0) 100%), url("BlackWhiteBackground.avif");
-    background-attachment: fixed;
-    background-size: cover;
-    background-position: center;
-
-}
-
-/*the menu*/
-.leftSide {
-    width: 80px;
-    background-color: transparent;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    transition: width 0.1s ease;
-    min-height: 100vh;
-}
-
-/*to see the menu button, everything else is hidden*/
-.leftSide:hover {
-    width: 200px;
     background-color: black;
+    overflow-x: hidden;
+    height: 100%;
 }
 
-.leftSide:hover .items {
-    display: flex;
-    opacity: 1;
+@keyframes rain {
+    /**from { background-position: 0 0; }
+    to { background-position: 15px 400px; }*/
+    from {
+        background-position: 0 0;
+    }
+    to {
+        background-position: 20px 600px;
+    }
+}
+
+/*rain drop effect in the background instead of an image background*/
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    z-index: 1;
+    pointer-events: none;
+
+    background-image: 
+        radial-gradient(10px 20px at 50px 80px, white, transparent),
+        radial-gradient(10px 20px at 150px 200px, white, transparent),
+        radial-gradient(10px 20px at 250px 50px, white, transparent),
+        radial-gradient(10px 20px at 100px 40px, white, transparent),
+        radial-gradient(10px 20px at 200px 100px, white, transparent),
+        radial-gradient(10px 20px at 400px 100px, white, transparent),
+        radial-gradient(10px 20px at 420px 70px, white, transparent),
+        radial-gradient(10px 20px at 350px 400px, white, transparent);
+    
+
+    background-size: 450px 450px;
+    opacity: 0.3;
+    animation: rain 1s linear infinite;
+}
+
+h1, p, .con, .response {
+    position: relative;
+    z-index: 10;
 }
 
 /*everything on the rightside -> the search bot*/
@@ -55,10 +75,9 @@ body {
 h1 {
     color: white;
     text-align: center;
-    font-size: 125px;
-    margin-top: 60px;
+    font-size: 50px;
     animation: fadeTitle 3s ease-out forwards;
-    margin-bottom: 150px;
+    filter: drop-shadow(5px 5px 10px white);
 }
 
 /*h1 line will fade in*/
@@ -77,30 +96,26 @@ h1 {
 p {
     text-align: center;
     color: white;
-    font-size: 20px;
-}
-
-html {
-    font-family: "verdana", "Courier New", monospace;
+    font-size: 14px;
+    font-weight: bold;
 }
 
 .con {
     width: 100%;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     gap: 15px;
     align-items: center;
     justify-content: center;
 }
 
 .searchBar {
-    width: 100%;
-    max-width: 600px;
+    width: 75%;
     background: black;
     display: flex;
     align-items: center;
     border-radius: 100px;
-    padding: 20px;
+    padding: 8px;
     border: 5px solid white;
 }
 
@@ -124,53 +139,25 @@ html {
 }
 
 .go_button {
-    width: 100%;
-    max-width: 100px;
-    padding: 20px;
+    width: 30%;
+    padding: 10px;
     background-color: black;
-    color: gray;
+    color: lightgray;
     font-weight: bold;
     border-radius: 50px;
     cursor: pointer;
     font-size: 15px;
     border: 5px solid white;
+    text-align: center;
+    display: block;
+    font-size: 12px;
+    padding: 10px;
+
 }
 
 /*go button pops out*/
 .go_button:hover {
     transform: scale(1.1);
-}
-
-
-/*helps order the drop down menu items*/
-.items {
-    display: none;
-    flex-direction: column;
-
-    opacity: 0;
-}
-
-/*drop down menu*/
-.drop {
-    background-color: transparent;
-    color: white;
-    padding: 20px;
-    font-size: 15px;
-    border: none;
-    font-weight: bold;
-    width: 200px;
-    text-align: left;
-    cursor: pointer;
-}
-
-/*the items in the menu*/
-.items a {
-    background-color: black;
-    color: white;
-    align-items: center;
-    font-size: 15px;
-    padding: 10px 20px;
-    text-decoration: none;
 }
 
 .response {
@@ -192,4 +179,19 @@ html {
     padding: 10px;
     overflow-x: auto;
     border-radius: 8px;
+}
+
+.img-con {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin: 20px 0;
+}
+
+.logo {
+    width: 200px;
+    height: auto;
+    position: relative;
+    z-index: 5;
 }
