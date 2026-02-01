@@ -136,7 +136,7 @@ function App() {
 
   return (
     <>
-      <h1>S i g h t M a t e</h1>
+      <h1>SightMate</h1>
       <div className="img-con">
         <img src={eyeLogo} className="logo" alt='SightMate Logo' />
       </div>
