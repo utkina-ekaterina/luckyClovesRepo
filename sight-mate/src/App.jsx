@@ -49,7 +49,7 @@ function App() {
         Format your response with clear Markdown.
     
         Score: [0-100]
-        ---
+        ------------
         ### Issue 1: [Name]
         **Current Code:** \`\`\`html
         [html snippet here]
@@ -58,7 +58,7 @@ function App() {
         \`\`\`html
         [fixed snippet here]
         \`\`\`
-        ---
+        ------------
         (Repeat for other issues)
         No explanations. real fixes.
         `
@@ -121,14 +121,11 @@ function App() {
       await chrome.scripting.executeScript({
         target: { tabId: tab.id },
         func: () => {
-          // Find all elements with the class we created earlier
           const highlights = document.querySelectorAll('.sightmate-highlight');
           highlights.forEach(el => el.remove());
         }
       });
 
-      // Optional: Reset the AI response text if you want to "clear" the dashboard too
-      // setResponse(""); 
     } catch (error) {
       console.error("Failed to clear highlights:", error);
     }
@@ -136,7 +133,7 @@ function App() {
 
   return (
     <>
-      <h1>S i g h t M a t e</h1>
+      <h1>SightMate</h1>
       <div className="img-con">
         <img src={eyeLogo} className="logo" alt='SightMate Logo' />
       </div>

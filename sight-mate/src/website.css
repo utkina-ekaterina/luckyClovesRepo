@@ -2,13 +2,14 @@
 
 
 
-html, body {
-  width: 450px; 
-  min-height: 450px;
-  margin: 0;
-  padding: 0px;
-  overflow-x: hidden;
-  font-family: "verdana", "Courier New", monospace;
+html,
+body {
+    width: 450px;
+    min-height: 450px;
+    margin: 0;
+    padding: 0px;
+    overflow-x: hidden;
+    font-family: "verdana", "Courier New", monospace;
 }
 
 
@@ -21,11 +22,13 @@ body {
 }
 
 @keyframes rain {
+
     /**from { background-position: 0 0; }
     to { background-position: 15px 400px; }*/
     from {
         background-position: 0 0;
     }
+
     to {
         background-position: 20px 600px;
     }
@@ -42,23 +45,27 @@ body::before {
     z-index: 1;
     pointer-events: none;
 
-    background-image: 
-        radial-gradient(10px 20px at 50px 80px, white, transparent),
-        radial-gradient(10px 20px at 150px 200px, white, transparent),
-        radial-gradient(10px 20px at 250px 50px, white, transparent),
-        radial-gradient(10px 20px at 100px 40px, white, transparent),
-        radial-gradient(10px 20px at 200px 100px, white, transparent),
-        radial-gradient(10px 20px at 400px 100px, white, transparent),
-        radial-gradient(10px 20px at 420px 70px, white, transparent),
-        radial-gradient(10px 20px at 350px 400px, white, transparent);
-    
+    background-image:
+        radial-gradient(2px 10px at 50px 80px, white, transparent),
+        radial-gradient(2px 10px at 150px 200px, white, transparent),
+        radial-gradient(2px 10px at 250px 50px, white, transparent),
+        radial-gradient(2px 10px at 350px 400px, white, transparent);
+
+
+
+
+
 
     background-size: 450px 450px;
-    opacity: 0.3;
+    opacity: 0.15;
     animation: rain 1s linear infinite;
+    will-change: transform;
 }
 
-h1, p, .con, .response {
+h1,
+p,
+.con,
+.response {
     position: relative;
     z-index: 10;
 }
@@ -78,6 +85,7 @@ h1 {
     font-size: 50px;
     animation: fadeTitle 3s ease-out forwards;
     filter: drop-shadow(5px 5px 10px white);
+    margin-bottom: 0;
 }
 
 /*h1 line will fade in*/
@@ -98,6 +106,7 @@ p {
     color: white;
     font-size: 14px;
     font-weight: bold;
+    margin: 5px 0;
 }
 
 .con {
@@ -140,7 +149,7 @@ p {
 
 .go_button {
     width: 30%;
-    padding: 10px;
+
     background-color: black;
     color: lightgray;
     font-weight: bold;
@@ -152,6 +161,7 @@ p {
     display: block;
     font-size: 12px;
     padding: 10px;
+    margin: 30px;
 
 }
 
@@ -162,11 +172,19 @@ p {
 
 .response {
     color: white;
-    padding: 10px 20px;
-    text-align: left;
     padding: 15px;
+    text-align: center;
     line-height: 1.6;
     max-width: 400px;
+    margin: 0 auto; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.response pre {
+    width: 100%;
+    text-align: left;
 }
 
 .response code {
@@ -175,22 +193,16 @@ p {
     font-family: monospace;
 }
 
-.response pre {
-    padding: 10px;
-    overflow-x: auto;
-    border-radius: 8px;
-}
-
 .img-con {
     display: flex;
     justify-content: center;
     align-items: center;
     width: 100%;
-    margin: 20px 0;
+    margin: 10px 0;
 }
 
 .logo {
-    width: 200px;
+    width: 150px;
     height: auto;
     position: relative;
     z-index: 5;
