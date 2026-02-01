@@ -1,63 +1,47 @@
 import { useState } from 'react'
 import { GoogleGenAI } from "@google/genai";
 import ReactMarkdown from 'react-markdown';
-import eyeLogo from'./eye.png';
+import eyeLogo from './eye.png';
 import './website.css'
 
 function App() {
 
   const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_KEY });
-  const [request, setRequest] = useState("");
   const [response, setResponse] = useState("");
-  
-  const handleChangeRequest = (event) => {
-    setRequest(event.target.value);
-  }
 
-  async function aiURLAnalysis() {
+  async function runAxeAnalysis() {
     try {
-      const aiResponse = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: `You need to analyze this website: ${request}. 
-          Check for <img> tags missing 'alt' attributes, having empty 'alt' strings or non-descriptive alt text (like "image123.jpg").
-          Assess whether this website has low contrast text issues.
-          Your response should look like this: "Score: [score from 0 to 100]. (next line) Areas to improve: (next line) 1. (one thing): (short precise explanation) ..." 
-          Make sure to be precise and straight to the point. Provide a small amount of text.`
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+
+      await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        files: ["axe.min.js"]
       });
 
-      setResponse(aiResponse.text);
-    } catch (error) {
-      console.log(error)
-      setResponse("There is some error, try again later.")
-    }
-  }
+      const results = await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        func: async () => {
+          return await axe.run({
+            runOnly: {
+              type: 'tag',
+              values: ['wcag2aa', 'contrast']
+            }
+          });
+        }
+      });
 
-async function runAxeAnalysis() {
-  try {
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      if (results && results[0]?.result) {
+        const violations = results[0].result.violations;
+        const manualChecks = results[0].result.incomplete;
+        const allIssues = [...violations, ...manualChecks];
 
-    await chrome.scripting.executeScript({
-      target: { tabId: tab.id },
-      files: ["axe.min.js"]
-    });
-
-    const results = await chrome.scripting.executeScript({
-      target: { tabId: tab.id },
-      func: async () => {
-        return await axe.run();
-      }
-    });
-
-    if (results && results[0]?.result) {
-      const violations = results[0].result.violations;
-      
-      if (violations.length === 0) {
-        setResponse("No automated violations found! Great job.");
-      } else {
-        highlightViolations(violations);
-        const aiResponse = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: `I found these accessibility issues: ${JSON.stringify(violations)}. 
+        if (allIssues.length === 0) {
+          setResponse("No automated violations found! Great job.");
+        } else {
+          highlightViolations(allIssues);
+          const aiResponse = await ai.models.generateContent({
+            model: "gemini-3-flash-preview",
+            contents: `I found these accessibility issues: ${JSON.stringify(allIssues)}. 
         You need to provide precise and straight and small suggestions how to fix those issues. Provide a score of accessibility.
         If possible, provide lines of code where the issue appears, or the snippet of the code. Please, be precise, remember, you are
         outlining this in a chrome extention.
@@ -78,82 +62,88 @@ async function runAxeAnalysis() {
         (Repeat for other issues)
         No explanations. real fixes.
         `
-      });
+          });
 
-      setResponse(aiResponse.text);
+          setResponse(aiResponse.text);
+        }
       }
+    } catch (error) {
+      console.error("Analysis failed:", error);
+      setResponse("Make sure you are on a valid webpage and try again.");
     }
-  } catch (error) {
-    console.error("Analysis failed:", error);
-    setResponse("Make sure you are on a valid webpage and try again.");
   }
-}
 
-async function highlightViolations(violations) {
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  async function highlightViolations(violations) {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
-  chrome.scripting.executeScript({
-    target: { tabId: tab.id },
-    func: (violationsData) => {
-      const old = document.querySelectorAll('.sightmate-highlight');
-      old.forEach(el => el.remove());
+    chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      func: (violationsData) => {
+        const old = document.querySelectorAll('.sightmate-highlight');
+        old.forEach(el => el.remove());
 
-      violationsData.forEach(violation => {
-        violation.nodes.forEach(node => {
-          const el = document.querySelector(node.target[0]);
-          if (el) {
-            const rect = el.getBoundingClientRect();
-            const highlight = document.createElement('div');
-            
-            Object.assign(highlight.style, {
-              position: 'absolute',
-              top: `${rect.top + window.scrollY}px`,
-              left: `${rect.left + window.scrollX}px`,
-              width: `${rect.width}px`,
-              height: `${rect.height}px`,
-              border: '3px dashed #ff4757',
-              backgroundColor: 'rgba(255, 71, 87, 0.1)',
-              pointerEvents: 'none',
-              zIndex: '9999',
-              borderRadius: '4px'
-            });
-            
-            highlight.className = 'sightmate-highlight';
-            document.body.appendChild(highlight);
-          }
+        violationsData.forEach(violation => {
+          violation.nodes.forEach(node => {
+            const el = document.querySelector(node.target[0]);
+            if (el) {
+              const rect = el.getBoundingClientRect();
+              const highlight = document.createElement('div');
+
+              Object.assign(highlight.style, {
+                position: 'absolute',
+                top: `${rect.top + window.scrollY}px`,
+                left: `${rect.left + window.scrollX}px`,
+                width: `${rect.width}px`,
+                height: `${rect.height}px`,
+                border: '3px dashed #f4a630ff',
+                backgroundColor: 'rgba(235, 168, 97, 0.05)',
+                pointerEvents: 'none',
+                zIndex: '9999',
+                borderRadius: '4px'
+              });
+
+              highlight.className = 'sightmate-highlight';
+              document.body.appendChild(highlight);
+            }
+          });
         });
+      },
+      args: [violations]
+    });
+  }
+
+  async function clearHighlights() {
+    try {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+
+      if (!tab) return;
+
+      await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        func: () => {
+          // Find all elements with the class we created earlier
+          const highlights = document.querySelectorAll('.sightmate-highlight');
+          highlights.forEach(el => el.remove());
+        }
       });
-    },
-    args: [violations]
-  });
-}
+
+      // Optional: Reset the AI response text if you want to "clear" the dashboard too
+      // setResponse(""); 
+    } catch (error) {
+      console.error("Failed to clear highlights:", error);
+    }
+  }
 
   return (
     <>
       <h1>S i g h t M a t e</h1>
       <div className="img-con">
-        <img src={eyeLogo} className="logo"/>
+        <img src={eyeLogo} className="logo" alt='SightMate Logo' />
       </div>
       <p>Use SightMate to fix your website to the finest!</p>
-      
+
 
       <div className="con">
-        <div className="searchBar">
-          <input
-            type="text"
-            id="request"
-            value={request}
-            onChange={handleChangeRequest}
-          />
-        </div>
-        <button className="go_button"
-          onClick={() => {
-            setResponse("Let me think...");
-            aiURLAnalysis()
-          }}>
-          Analyse URL
-        </button>
-
         <button className="go_button"
           onClick={() => {
             setResponse("Let me think...");
@@ -163,9 +153,16 @@ async function highlightViolations(violations) {
         </button>
       </div>
 
-      <div className='response'>
-        <ReactMarkdown>{response}</ReactMarkdown>
-      </div>
+<div className='response'><ReactMarkdown>{response}</ReactMarkdown></div>
+      {response && <div className="con">
+        <button className="go_button"
+          onClick={() => {
+            clearHighlights()
+            setResponse("");
+          }}>
+          Clear
+        </button>
+      </div>}
     </>
   );
 }
